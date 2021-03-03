@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
-const port = 5000;
 const bodyParser = require("body-parser"); // bodyParser는 클라이언트에서 오는 정보를 서버에서 분석해서 가져올 수 있게 해줌
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const config = require("./config/key");
 
@@ -15,6 +15,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
+const cors_origin = ["http://localhost:3000"]; // 로컬 개발용 기본 cors origin(front3000)
+
+app.use(
+  cors({
+    origin: cors_origin, // 허락하고자 하는 요청 주소
+    credentials: true, // 설정 내용을 response 헤더에 추가
+  })
+);
+
 const mongoose = require("mongoose");
 mongoose
   .connect(config.mongoURI, {
@@ -27,6 +36,10 @@ mongoose
   .catch((err) => console.log(err)); // 연결 실패 시
 
 app.get("/", (req, res) => res.send("Hello World!@"));
+
+app.get("/api/hello", (req, res) => {
+  res.send("아녕하세요~!");
+});
 
 // 회원가입을 위한 route
 app.post("/api/users/register", (req, res) => {
@@ -94,4 +107,5 @@ app.get("/api/users/logout", auth, (req, res) => {
   });
 });
 
+const port = 5000;
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
